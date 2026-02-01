@@ -8,8 +8,15 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score
 
 # MLflow setup
-mlflow.set_tracking_uri("http://127.0.0.1:5000")
-mlflow.set_experiment("mlops-course")
+#dagshub integration is used here for logging and tracking  remotly
+import dagshub
+dagshub_owner="MariamHamid"
+dagshub_repo="accelerator-tracking-demo"
+dagshub.init(repo_owner=dagshub_owner, repo_name=dagshub_repo, mlflow=True)
+
+#tracking locally
+# mlflow.set_tracking_uri("http://127.0.0.1:5000")
+# mlflow.set_experiment("mlops-course")
 
 MODEL_NAME = "mlops-course-model"
 
