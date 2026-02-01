@@ -5,6 +5,4 @@ __pycache__/
 .DS_Store
 .ipynb_checkpoints
 mlflow.db
-
 newenv/
-/data
