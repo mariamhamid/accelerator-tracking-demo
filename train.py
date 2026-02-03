@@ -37,35 +37,38 @@ from sklearn.metrics import accuracy_score
 # DagsHub allows us to track MLflow experiments remotely (online)
 import dagshub
 
-# GitHub / DagsHub repository owner
-DAGSHUB_OWNER = "MariamHamid"
-
-# Repository name where experiments will be tracked
-DAGSHUB_REPO = "accelerator-tracking-demo"
-
-# Initialize DagsHub + MLflow integration
-# This tells MLflow to log everything to DagsHub instead of only locally
-dagshub.init(
-    repo_owner=DAGSHUB_OWNER,
-    repo_name=DAGSHUB_REPO,
-    mlflow=True
-)
 
 
 # -------------------------
 # TRAINING FUNCTION
-# -------------------------
 
-# This function trains multiple Random Forest models
-# using different hyperparameters and logs everything to MLflow
 def run_training(
     n_values=(10, 50, 100),        # Different values for number of trees
     max_depth=5,                  # Maximum depth of each tree
     experiment_name="mlops-demo", # Name of the MLflow experiment
     model_name="mlops-demo-model",# Name for model registry
-    use_registry=True             # Whether to register the model or not
+    use_registry=True         ,    # Whether to register the model or not
+    dagshub_owner= os.getenv("DAGSHUB_OWNER","MariamHamid"),
+    dagshub_repo= os.getenv("DAGSHUB_REPO","accelerator-tracking-demo")
+                            
 ):
+     # GitHub / DagsHub repository owner
+    dagshub_owner = "MariamHamid"
 
+    # Repository name where experiments will be tracked
+    dagshub_repo = "accelerator-tracking-demo"
+
+    # Initialize DagsHub + MLflow integration
+    # This tells MLflow to log everything to DagsHub instead of only locally
+    dagshub.init( repo_owner=dagshub_owner, repo_name=dagshub_repo,mlflow=True)
+    
+    X,y = load_iris(return_X_y=True)
+    X_train, X_test, y_train, y_test = train_test_split( X, y, test_size=0.2, random_state=42)
+    MODEL_NAME = "mlops-course-model"
+
+
+    if mlflow.get_tracking_uri().startswith("file:")and dagshub :
+        dagshub.init(repo_owner=dagshub_owner, repo_name=dagshub_repo, mlflow=True)
     # Set (or create) an MLflow experiment
     # All runs will be grouped under this name
     mlflow.set_experiment(experiment_name)
