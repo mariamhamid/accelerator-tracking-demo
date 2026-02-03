@@ -3,17 +3,16 @@
 
 # TestClient allows us to call FastAPI endpoints
 # without running a real server
-from fastapi.testclient import TestClient
 
-# Import the FastAPI app from api.py
-from api import app
 import os
 import sys
 
 PROJECT_ROOT= os.path.dirname(os.path.abspath(__file__))
 sys.path.append(os.path.dirname(PROJECT_ROOT))
+from fastapi.testclient import TestClient
+# Import the FastAPI app from api.py
+from api import app  
 
-from api import app
 # Create a test client for the FastAPI app
 client = TestClient(app)
 
