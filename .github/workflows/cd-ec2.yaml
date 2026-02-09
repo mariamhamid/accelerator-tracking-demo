@@ -1,0 +1,42 @@
+name: CI/CD to EC2
+on:
+  push:
+    branches:
+      - main
+
+jobs: 
+    build-and-deploy:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+             #login to docker 
+
+        
+            - name: Log in to DockerHub
+              uses: docker/login-action@v3
+              with:
+                username: ${{ secrets.DOCKERHUB_USERNAME }}
+                password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+            # Build and push Docker image
+            - name: Build and push Docker image
+              uses: docker/build-push-action@v5
+              with:
+                context: .
+                push: true
+                tags: ${{ secrets.DOCKERHUB_USERNAME }}/ accelerator-cd-demo:latest
+
+            # Deploy to EC2 using SSH
+            - name: Deploy to EC2
+              uses: appleboy/ssh-action@v1.0.0
+              with:
+                host: ${{ secrets.EC2_HOST }}
+                username: ${{ secrets.EC2_USER }}
+                key: ${{ secrets.EC2_SSH_KEY }}
+                script: |
+                  docker pull ${{ secrets.DOCKERHUB_USERNAME }}/accelerator-cd-demo:latest
+                  docker stop accelerator-cd-demo:latest || true
+                  docker rm accelerator-cd-demo:latest || true
+                  docker run -d --name accelerator-cd-demo:latest --restart always -p 8000:8000 ${{ secrets.DOCKERHUB_USERNAME }}/model-api:latest
